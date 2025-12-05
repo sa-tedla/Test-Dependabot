@@ -20,7 +20,7 @@ pypdf = "^4.3.1"
 pandas = "^2.0.3"
 openpyxl = "^3.1.2"
 azure-ai-textanalytics = "^5.3.0"
-sentry-sdk = {extras = ["fastapi"], version = "^1.29.2"}
+sentry-sdk = {extras = ["fastapi"], version = "^2.47.0"}
 stringcase = "^1.2.0"
 boxsdk = "^3.8.1"
 prisma = "^0.13.1"
