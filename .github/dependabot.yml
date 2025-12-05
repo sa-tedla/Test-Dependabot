@@ -16,7 +16,7 @@ updates:
       prefix: "[dev] api-deps"
       include: "scope"
     groups:
-      dev-minor-and-patch:
+      api-dev-minor-and-patch:
         patterns:
           - "*"
         update-types:
@@ -38,7 +38,7 @@ updates:
       prefix: "[wg-dev] api-deps"
       include: "scope"
     groups:
-      wg-dev-minor-and-patch:
+      api-wg-dev-minor-and-patch:
         patterns:
           - "*"
         update-types:
@@ -60,7 +60,7 @@ updates:
       prefix: "[dev] web-deps"
       include: "scope"
     groups:
-      dev-minor-and-patch:
+      web-dev-minor-and-patch:
         patterns:
           - "*"
         update-types:
@@ -82,7 +82,7 @@ updates:
       prefix: "[wg-dev] web-deps"
       include: "scope"
     groups:
-      wg-dev-minor-and-patch:
+      web-wg-dev-minor-and-patch:
         patterns:
           - "*"
         update-types:
