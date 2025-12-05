@@ -2,9 +2,10 @@ version: 2
 updates:
   - package-ecosystem: "pip"
     directory: "/api"
-    target-branch: "dev"
+    target-branch: "qa"
     schedule:
-      interval: "daily"
+      interval: "weekly"
+      day: "sunday"
     open-pull-requests-limit: 5
     labels:
       - "dependencies"
@@ -13,17 +14,18 @@ updates:
     assignees:
       - "prjkhkted"
     commit-message:
-      prefix: "[dev] api-deps"
+      prefix: "[qa] api-deps"
       include: "scope"
     groups:
-      api-dev-all-dependencies:
+      api-qa-all-dependencies:
         patterns:
           - "*"
   - package-ecosystem: "pip"
     directory: "/api"
-    target-branch: "wg-dev"
+    target-branch: "wg-develop"
     schedule:
-      interval: "daily"
+      interval: "weekly"
+      day: "sunday"
     open-pull-requests-limit: 5
     labels:
       - "dependencies"
@@ -32,17 +34,18 @@ updates:
     assignees:
       - "prjkhkted"
     commit-message:
-      prefix: "[wg-dev] api-deps"
+      prefix: "[wg-develop] api-deps"
       include: "scope"
     groups:
-      api-wg-dev-all-dependencies:
+      api-wg-develop-all-dependencies:
         patterns:
           - "*"
   - package-ecosystem: "npm"
     directory: "/web"
-    target-branch: "dev"
+    target-branch: "qa"
     schedule:
-      interval: "daily"
+      interval: "weekly"
+      day: "sunday"
     open-pull-requests-limit: 5
     labels:
       - "dependencies"
@@ -51,17 +54,18 @@ updates:
     assignees:
       - "prjkhkted"
     commit-message:
-      prefix: "[dev] web-deps"
+      prefix: "[qa] web-deps"
       include: "scope"
     groups:
-      web-dev-all-dependencies:
+      web-qa-all-dependencies:
         patterns:
           - "*"
   - package-ecosystem: "npm"
     directory: "/web"
-    target-branch: "wg-dev"
+    target-branch: "wg-develop"
     schedule:
-      interval: "daily"
+      interval: "weekly"
+      day: "sunday"
     open-pull-requests-limit: 5
     labels:
       - "dependencies"
@@ -70,10 +74,10 @@ updates:
     assignees:
       - "prjkhkted"
     commit-message:
-      prefix: "[wg-dev] web-deps"
+      prefix: "[wg-develop] web-deps"
       include: "scope"
     groups:
-      web-wg-dev-all-dependencies:
+      web-wg-develop-all-dependencies:
         patterns:
           - "*"
 
