@@ -1,0 +1,594 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+generator client_web {
+  provider      = "prisma-client-js"
+  engineType    = "library"
+  output        = "/app/node_modules/.prisma/client"
+  binaryTargets = ["native"]
+}
+
+generator client_api {
+  provider = "prisma-client-py"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Group {
+  id        String   @id @default(uuid()) @map("id")
+  name      String   @map("name")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  userGroups              UserGroupRelation[]
+  chatModelGroup          ChatModelGroupRelation[]
+  groupAssistantRelations GroupAssistantRelation[]
+
+  @@map("groups")
+}
+
+model User {
+  id        String   @id @default(uuid()) @map("id")
+  email     String   @unique @map("email")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  userGroups                 UserGroupRelation[]
+  chatModelIndexUserFeedback ChatModelIndexUserFeedback[]
+  chat                       Chat[]
+  ChatMessage                ChatMessage[]
+  ChatV2                     ChatV2[]
+  ChatMessageV2              ChatMessageV2[]
+
+  threads       Thread[]
+  messages      Message[]
+  userFeedbacks UserFeedback[]
+  assistants    Assistant[]
+
+  @@map("users")
+}
+
+model UserGroupRelation {
+  userId    String   @map("user_id")
+  groupId   String   @map("group_id")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  user  User  @relation(fields: [userId], references: [id])
+  group Group @relation(fields: [groupId], references: [id])
+
+  @@id([userId, groupId])
+  @@map("user_group_relations")
+}
+
+model ChatModel {
+  id          String               @id @default(uuid()) @map("id")
+  name        String               @map("name")
+  serviceType ChatModelServiceType @map("service_type")
+  taskType    ChatModelTaskType    @map("task_type")
+  createdAt   DateTime             @default(now()) @map("created_at")
+  updatedAt   DateTime             @updatedAt @map("updated_at")
+
+  chats                      Chat[]
+  chatModelGroup             ChatModelGroupRelation[]
+  chatModelIndex             ChatModelIndex?
+  chatModelIndexUserFeedback ChatModelIndexUserFeedback[]
+  chatModelIndexSource       ChatModelIndexSource[]
+  SearchChat                 SearchChat[]
+  QAChat                     QAChat[]
+
+  @@map("chat_models")
+}
+
+enum ChatModelServiceType {
+  azure
+  openai
+}
+
+enum ChatModelTaskType {
+  conversations
+  document_references
+}
+
+model ChatModelGroupRelation {
+  chatModelId String    @map("chat_model_id")
+  chatModel   ChatModel @relation(fields: [chatModelId], references: [id])
+  groupId     String    @map("group_id")
+  group       Group     @relation(fields: [groupId], references: [id])
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  @@id([chatModelId, groupId])
+  @@map("chat_model_group_relations")
+}
+
+model ChatModelIndex {
+  id          String               @id @default(uuid()) @map("id")
+  name        String               @map("name")
+  chatModelId String               @unique @map("chat_model_id")
+  chatModel   ChatModel            @relation(fields: [chatModelId], references: [id])
+  status      ChatModelIndexStatus @map("status")
+  createdAt   DateTime             @default(now()) @map("created_at")
+  updatedAt   DateTime             @updatedAt @map("updated_at")
+
+  @@map("chat_model_indexes")
+}
+
+enum ChatModelIndexStatus {
+  waiting
+  updating
+  error
+  complete
+}
+
+model ChatModelIndexSource {
+  id          String    @id @map("id")
+  chatModelId String    @map("chat_model_id")
+  chatModel   ChatModel @relation(fields: [chatModelId], references: [id])
+  source      String    @unique @map("source")
+  files       String[]  @default([]) @map("source_contents")
+  syncedAt    DateTime  @map("synced_at")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  @@map("chat_model_index_sources")
+}
+
+model ChatModelIndexUserFeedback {
+  id          String    @id @default(uuid()) @map("id")
+  userId      String    @map("user_id")
+  user        User      @relation(fields: [userId], references: [id])
+  chatModelId String    @map("chat_model_id")
+  chatModel   ChatModel @relation(fields: [chatModelId], references: [id])
+  question    String    @map("question")
+  answer      String    @map("answer")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  @@map("chat_model_index_user_feedbacks")
+}
+
+model Chat {
+  id               String    @id @default(uuid()) @map("id")
+  title            String    @map("title")
+  userId           String    @map("user_id")
+  User             User      @relation(fields: [userId], references: [id])
+  chatModelId      String    @map("chat_model_id")
+  chatModel        ChatModel @relation(fields: [chatModelId], references: [id])
+  serviceModelName String    @default("gpt-35-turbo") @map("service_model")
+  createdAt        DateTime  @default(now()) @map("created_at")
+  updatedAt        DateTime  @updatedAt @map("updated_at")
+
+  chatMessages ChatMessage[] // Relation
+
+  @@map("chats")
+}
+
+model ChatMessage {
+  id                   String          @id @default(uuid()) @map("id")
+  userId               String          @map("user_id")
+  User                 User            @relation(fields: [userId], references: [id])
+  chatId               String          @map("chat_id")
+  chat                 Chat            @relation(fields: [chatId], references: [id])
+  text                 String          @map("text")
+  role                 ChatMessageRole @map("role")
+  prompt_token_num     Int             @default(0) @map("prompt_token_num")
+  completion_token_num Int             @default(0) @map("completion_token_num")
+  createdAt            DateTime        @default(now()) @map("created_at")
+  updatedAt            DateTime        @updatedAt @map("updated_at")
+
+  chatMessageReferences ChatMessageReference[]
+
+  @@map("chat_messages")
+}
+
+enum ChatMessageRole {
+  user
+  system
+  assistant
+}
+
+model ChatMessageReference {
+  id            String      @id @default(uuid()) @map("id")
+  chatMessageId String      @map("chat_message_id")
+  chatMessage   ChatMessage @relation(fields: [chatMessageId], references: [id])
+  name          String      @map("name")
+  source        String      @map("source")
+  sourcePage    Int         @map("source_page")
+  createdAt     DateTime    @default(now()) @map("created_at")
+  updatedAt     DateTime    @updatedAt @map("updated_at")
+
+  @@map("chat_message_references")
+}
+
+model ExtractedDocument {
+  id      String @id @default(uuid()) @map("id")
+  content String @map("content")
+  fileId  String @map("file_id")
+  page    Int    @map("page")
+
+  @@map("extracted_document")
+}
+
+model WgPromptTemplate {
+  id          String   @id @default(uuid()) @map("id")
+  title       String   @map("title")
+  description String   @map("description")
+  prompt      String   @map("prompt")
+  wgId        String   @map("wg_id")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@map("wg_prompt_templates")
+}
+
+model AssistantTemplate {
+  id            String          @id @default(uuid()) @map("id")
+  title         String          @map("title")
+  description   String          @map("description")
+  icon          String          @map("icon")
+  prompt        String          @map("prompt")
+  groupId       String          @map("group_id")
+  createdAt     DateTime        @default(now()) @map("created_at")
+  updatedAt     DateTime        @updatedAt @map("updated_at")
+  AssistantChat AssistantChat[]
+
+  @@index([id, groupId])
+  @@map("assistant_templates")
+}
+
+model ChatV2 {
+  id               String               @id @default(uuid()) @map("id")
+  title            String               @map("title")
+  userId           String               @map("user_id")
+  taskType         ChatType             @map("task_type") // search, q&a, task
+  User             User                 @relation(fields: [userId], references: [id])
+  createdAt        DateTime             @default(now()) @map("created_at")
+  updatedAt        DateTime             @updatedAt @map("updated_at")
+  serviceModelName String               @default("gpt-35-turbo") @map("service_model")
+  serviceType      ChatModelServiceType @default(openai) @map("service_type")
+
+  chatMessages  ChatMessageV2[]
+  SearchChat    SearchChat[]
+  QAChat        QAChat[]
+  AssistantChat AssistantChat[]
+
+  @@index([id, userId])
+  @@map("chats_v2")
+}
+
+enum ChatType {
+  search
+  qa
+  assistant
+}
+
+model SearchChat {
+  id          String    @id @default(uuid()) @map("id")
+  chatV2Id    String    @map("chatv2_id")
+  chatModelId String    @map("chat_model_id")
+  chatModel   ChatModel @relation(fields: [chatModelId], references: [id])
+  ChatV2      ChatV2    @relation(fields: [chatV2Id], references: [id])
+
+  @@index([id, chatV2Id, chatModelId])
+  @@map("search_chats")
+}
+
+model QAChat {
+  id          String    @id @default(uuid()) @map("id")
+  chatV2Id    String    @map("chatv2_id")
+  chatModelId String    @map("chat_model_id")
+  chatModel   ChatModel @relation(fields: [chatModelId], references: [id])
+  ChatV2      ChatV2    @relation(fields: [chatV2Id], references: [id])
+
+  @@index([id, chatV2Id, chatModelId])
+  @@map("qa_chats")
+}
+
+model AssistantChat {
+  id                  String            @id @default(uuid()) @map("id")
+  chatV2Id            String            @map("chatv2_id")
+  assistantTemplateId String            @map("assistant_template_id")
+  ChatV2              ChatV2            @relation(fields: [chatV2Id], references: [id])
+  AssistantTemplate   AssistantTemplate @relation(fields: [assistantTemplateId], references: [id])
+
+  @@index([id, chatV2Id, assistantTemplateId])
+  @@map("assistant_chats")
+}
+
+model ChatMessageV2 {
+  id                 String          @id @default(uuid()) @map("id")
+  userId             String          @map("user_id")
+  User               User            @relation(fields: [userId], references: [id])
+  chatV2Id           String          @map("chat_v2_id")
+  chat               ChatV2          @relation(fields: [chatV2Id], references: [id])
+  role               ChatMessageRole @map("role")
+  text               String
+  promptTokenNum     Int             @map("prompt_token_num")
+  completionTokenNum Int             @map("completion_token_num")
+  createdAt          DateTime        @default(now()) @map("created_at")
+  updatedAt          DateTime        @updatedAt @map("updated_at")
+
+  QAChatContent     QAChatContent[]
+  SearchChatContent SearchChatContent[]
+
+  @@index([id, userId, chatV2Id])
+  @@map("chat_messages_v2")
+}
+
+model SearchChatContent {
+  id                       String                 @id @default(uuid())
+  text                     String
+  ChatMessageReferenceV2Id String                 @map("chat_message_reference_v2_id")
+  ChatMessageReferenceV2   ChatMessageReferenceV2 @relation(fields: [ChatMessageReferenceV2Id], references: [id])
+  ChatMessageV2            ChatMessageV2?         @relation(fields: [chatMessageV2Id], references: [id])
+  chatMessageV2Id          String?
+
+  @@map("search_chat_contents")
+}
+
+model QAChatContent {
+  id                       String                 @id @default(uuid())
+  ChatMessageReferenceV2Id String                 @map("chat_message_reference_v2_id")
+  ChatMessageReferenceV2   ChatMessageReferenceV2 @relation(fields: [ChatMessageReferenceV2Id], references: [id])
+  ChatMessageV2            ChatMessageV2?         @relation(fields: [chatMessageV2Id], references: [id])
+  chatMessageV2Id          String?
+
+  @@map("qa_chat_contents")
+}
+
+model ChatMessageReferenceV2 {
+  id                String              @id @default(uuid())
+  name              String
+  source            String
+  sourcePage        String              @map("source_page")
+  QAChatContent     QAChatContent[]
+  SearchChatContent SearchChatContent[]
+
+  @@map("chat_message_references_v2")
+}
+
+/////////////////////////////////////////
+// V3
+/////////////////////////////////////////
+enum AssistantType {
+  EMPTY
+  CONVERSATION
+  SEARCH
+  Q_AND_A
+}
+
+enum AssistantStatus {
+  PREPARING
+  PROGRESSING
+  READY
+  ERROR
+}
+
+model Assistant {
+  id              String          @id @map("id")
+  icon            String          @map("icon")
+  name            String          @map("name")
+  description     String          @map("description")
+  assistantType   AssistantType   @map("type")
+  assistantStatus AssistantStatus @map("status")
+  creatorId       String          @map("creator_id")
+  createdAt       DateTime        @default(now()) @map("created_at")
+  updatedAt       DateTime        @updatedAt @map("updated_at")
+
+  user User @relation(fields: [creatorId], references: [id])
+
+  conversationAssistant   ConversationAssistant?
+  qAndAAssistant          QAndAAssistant?
+  searchAssistant         SearchAssistant?
+  userFeedbacks           UserFeedback[]
+  groupAssistantRelations GroupAssistantRelation[]
+
+  @@map("assistants")
+}
+
+model ConversationAssistant {
+  assistantId  String   @id @map("assistant_id")
+  systemPrompt String   @map("system_prompt")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  assistant Assistant @relation(fields: [assistantId], references: [id])
+
+  @@map("conversation_assistants")
+}
+
+model QAndAAssistant {
+  assistantId  String   @id @map("assistant_id")
+  systemPrompt String?  @map("system_prompt")
+  indexId      String   @unique @map("index_id")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  assistant Assistant @relation(fields: [assistantId], references: [id])
+  index     Index     @relation(fields: [indexId], references: [id])
+
+  @@map("q_and_a_assistants")
+}
+
+model SearchAssistant {
+  assistantId String   @id @map("assistant_id")
+  indexId     String   @unique @map("index_id")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  assistant Assistant @relation(fields: [assistantId], references: [id])
+  index     Index     @relation(fields: [indexId], references: [id])
+
+  @@map("search_assistants")
+}
+
+model Index {
+  id        String   @id @default(uuid()) @map("id")
+  key       String   @map("key")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  indexSources    IndexSource[]
+  searchAssistant SearchAssistant?
+  qAndAAssistant  QAndAAssistant?
+
+  @@map("indexes")
+}
+
+model IndexSource {
+  id        String   @id @default(uuid()) @map("id")
+  indexId   String   @map("index_id")
+  source    String   @map("source")
+  files     String[] @default([]) @map("files")
+  syncedAt  DateTime @map("synced_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  index Index @relation(fields: [indexId], references: [id])
+
+  @@map("index_sources")
+}
+
+model UserFeedback {
+  id          String   @id @default(uuid()) @map("id")
+  userId      String   @map("user_id")
+  assistantId String   @map("assistant_id")
+  question    String   @map("question")
+  answer      String   @map("answer")
+  source      String?  @map("source")
+  sourcePage  String?  @map("source_page")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  assistant Assistant @relation(fields: [assistantId], references: [id])
+  user      User      @relation(fields: [userId], references: [id])
+
+  @@map("user_feedbacks")
+}
+
+model GroupAssistantRelation {
+  groupId     String   @map("group_id")
+  assistantId String   @map("assistant_id")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  group     Group     @relation(fields: [groupId], references: [id])
+  assistant Assistant @relation(fields: [assistantId], references: [id])
+
+  @@id([groupId, assistantId])
+  @@map("group_assistant_relations")
+}
+
+enum ModelType {
+  GPT_35_TURBO
+  GPT_4
+  GPT_4_TURBO_PREVIEW
+  GPT_4O
+}
+
+model Thread {
+  id          String    @id
+  userId      String    @map("user_id")
+  assistantId String    @map("assistant_id")
+  title       String    @map("title")
+  modelType   ModelType @map("model_type")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  user     User      @relation(fields: [userId], references: [id])
+  messages Message[]
+
+  @@index([id, userId])
+  @@map("threads")
+}
+
+enum MessageRole {
+  USER
+  ASSISTANT
+}
+
+model Message {
+  id        String      @id
+  threadId  String?     @map("thread_id")
+  userId    String      @map("user_id")
+  role      MessageRole @map("role")
+  contents  String
+  createdAt DateTime    @default(now()) @map("created_at")
+  updatedAt DateTime    @updatedAt @map("updated_at")
+
+  thread              Thread?              @relation(fields: [threadId], references: [id], onDelete: SetNull)
+  user                User                 @relation(fields: [userId], references: [id])
+  messageReferences   MessageReference[]
+  assistantMessageLog AssistantMessageLog?
+  messageDocuments    MessageDocument[]
+  messageFeedback     MessageFeedback?
+
+  @@index([id, userId, threadId])
+  @@map("messages")
+}
+
+model MessageReference {
+  id         String @id @default(uuid())
+  messageId  String @map("message_id")
+  name       String
+  contents   String
+  source     String
+  sourcePage String @map("source_page")
+
+  message Message @relation(fields: [messageId], references: [id])
+
+  @@map("message_references")
+}
+
+model AssistantMessageLog {
+  messageId      String    @id @map("message_id")
+  prompt         String
+  completion     String
+  promtSize      Int
+  completionSize Int
+  modelType      ModelType @map("model_type")
+  createdAt      DateTime  @default(now()) @map("created_at")
+
+  message Message @relation(fields: [messageId], references: [id])
+
+  @@map("message_size_logs")
+}
+
+model MessageDocument {
+  id        String   @id @default(uuid())
+  messageId String   @map("message_id")
+  blobName  String?  @map("blob_name")
+  filename  String
+  content   String
+  source    String
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  message Message @relation(fields: [messageId], references: [id])
+
+  @@index([id, messageId])
+  @@map("message_documents")
+}
+
+enum FEEDBACK {
+  GOOD
+  BAD
+}
+
+model MessageFeedback {
+  messageId String   @id @map("message_id")
+  feedback  FEEDBACK
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  message Message @relation(fields: [messageId], references: [id])
+
+  @@map("message_feedbacks")
+}

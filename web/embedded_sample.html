@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>チャットボット</title>
+    <style>
+      /* チャットボタンのスタイル */
+      #chat-button {
+        position: fixed;
+        bottom: 35px;
+        right: 30px;
+        border: none;
+        cursor: pointer;
+        background-color: transparent;
+        filter: drop-shadow(5px 14px 80px rgba(26, 26, 26, 0.12))
+          drop-shadow(10px 10px 40px rgba(0, 0, 0, 0.08));
+      }
+      #chat-iframe {
+        position: fixed;
+        bottom: -824px; /* ボタンの高さ + 余白 */
+        right: 30px;
+        width: 423px;
+        height: 709px;
+        border-radius: 18px;
+        border: none;
+        box-shadow:
+          5px 14px 80px 0px rgba(26, 26, 26, 0.12),
+          10px 10px 40px 0px rgba(0, 0, 0, 0.08);
+        transition: bottom 0.3s ease-in-out;
+      }
+
+      .show-component {
+        display: flex;
+        background: linear-gradient(to right, #0165a3 0%, #148f99 100%);
+        border-radius: 100px;
+        padding-left: 10px;
+        padding-right: 30px;
+        color: white;
+      }
+    </style>
+  </head>
+  <body>
+    <button id="chat-button">
+      <div id="show-icon" class="show-component">
+        <svg
+          width="60"
+          height="60"
+          viewBox="0 0 60 60"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <rect width="60" height="60" rx="30" fill="url(#paint0_linear_386_73)" />
+          <path
+            d="M43.673 45.4524C43.673 45.4524 38.949 43.6574 35.127 42.2194H19.054C17.151 42.2194 15.609 40.6394 15.609 38.6914V18.0114C15.609 16.0644 17.151 14.4844 19.054 14.4844H40.226C42.129 14.4844 43.672 16.0644 43.672 18.0114V35.8224L43.673 35.8214V45.4524ZM39.525 33.8564C39.195 33.4624 38.614 33.4174 38.23 33.7544C38.2 33.7804 35.208 36.3504 29.639 36.3504C24.141 36.3504 21.103 33.7984 21.048 33.7524C20.663 33.4164 20.085 33.4634 19.755 33.8564C19.424 34.2514 19.47 34.8444 19.855 35.1834C19.998 35.3074 23.401 38.2314 29.639 38.2314C35.88 38.2314 39.284 35.3074 39.425 35.1834C39.81 34.8444 39.856 34.2514 39.525 33.8564Z"
+            fill="white"
+          />
+        </svg>
+        <p>AI Chatbot<br />を開く</p>
+      </div>
+
+      <svg
+        id="hidden-icon"
+        xmlns="http://www.w3.org/2000/svg"
+        width="60"
+        height="60"
+        viewBox="0 0 60 60"
+        fill="none"
+        style="display: none"
+      >
+        <rect width="60" height="60" rx="30" fill="url(#paint0_linear_382_68)" />
+        <path
+          d="M30 37.5938L19.4062 27L21 25.4062L21.7969 26.2031L30 34.4531L39 25.4531L40.5938 27L30 37.5938Z"
+          fill="white"
+        />
+        <defs>
+          <linearGradient
+            id="paint0_linear_382_68"
+            x1="30"
+            y1="0"
+            x2="30"
+            y2="60"
+            gradientUnits="userSpaceOnUse"
+          >
+            <stop stop-color="#0165A3" />
+            <stop offset="1" stop-color="#148F99" />
+          </linearGradient>
+        </defs>
+      </svg>
+    </button>
+    <iframe
+      id="chat-iframe"
+      src="https://ocllmbot-web-dev.whiteisland-75035a7c.japaneast.azurecontainerapps.io/all"
+    ></iframe>
+
+    <script>
+      document.getElementById('chat-button').addEventListener('click', function () {
+        let iframe = document.getElementById('chat-iframe');
+        let showIcon = document.getElementById('show-icon');
+        let hiddenIcon = document.getElementById('hidden-icon');
+        if (iframe.style.bottom === '-824px' || iframe.style.bottom === '') {
+          iframe.style.bottom = '115px';
+          showIcon.style.display = 'none';
+          hiddenIcon.style.display = 'block';
+        } else {
+          iframe.style.bottom = '-824px';
+          showIcon.style.display = 'flex';
+          hiddenIcon.style.display = 'none';
+        }
+      });
+    </script>
+  </body>
+</html>
