@@ -16,12 +16,9 @@ updates:
       prefix: "[dev] api-deps"
       include: "scope"
     groups:
-      api-dev-minor-and-patch:
+      api-dev-all-dependencies:
         patterns:
           - "*"
-        update-types:
-          - "minor"
-          - "patch"
   - package-ecosystem: "pip"
     directory: "/api"
     target-branch: "wg-dev"
@@ -38,12 +35,9 @@ updates:
       prefix: "[wg-dev] api-deps"
       include: "scope"
     groups:
-      api-wg-dev-minor-and-patch:
+      api-wg-dev-all-dependencies:
         patterns:
           - "*"
-        update-types:
-          - "minor"
-          - "patch"
   - package-ecosystem: "npm"
     directory: "/web"
     target-branch: "dev"
@@ -60,12 +54,9 @@ updates:
       prefix: "[dev] web-deps"
       include: "scope"
     groups:
-      web-dev-minor-and-patch:
+      web-dev-all-dependencies:
         patterns:
           - "*"
-        update-types:
-          - "minor"
-          - "patch"
   - package-ecosystem: "npm"
     directory: "/web"
     target-branch: "wg-dev"
@@ -82,9 +73,7 @@ updates:
       prefix: "[wg-dev] web-deps"
       include: "scope"
     groups:
-      web-wg-dev-minor-and-patch:
+      web-wg-dev-all-dependencies:
         patterns:
           - "*"
-        update-types:
-          - "minor"
-          - "patch"
+
