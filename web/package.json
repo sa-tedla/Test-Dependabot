@@ -66,7 +66,7 @@
     "crypto-js": "^4.1.1",
     "emoji-picker-element": "^1.21.1",
     "gpt3-tokenizer": "^1.1.5",
-    "mssql": "^9.2.0",
+    "mssql": "^12.2.0",
     "nanoid": "^4.0.2",
     "openai": "^4.2.0",
     "php-serialize": "^4.1.1",
