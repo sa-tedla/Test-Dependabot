@@ -2,6 +2,7 @@ version: 2
 updates:
   - package-ecosystem: "pip"
     directory: "/api"
+    target-branch: "dev"
     schedule:
       interval: "daily"
     open-pull-requests-limit: 5
@@ -12,10 +13,76 @@ updates:
     assignees:
       - "prjkhkted"
     commit-message:
-      prefix: "api-deps"
+      prefix: "[dev] api-deps"
       include: "scope"
     groups:
-      minor-and-patch:
+      dev-minor-and-patch:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
+  - package-ecosystem: "pip"
+    directory: "/api"
+    target-branch: "wg-dev"
+    schedule:
+      interval: "daily"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "python"
+      - "api"
+    assignees:
+      - "prjkhkted"
+    commit-message:
+      prefix: "[wg-dev] api-deps"
+      include: "scope"
+    groups:
+      wg-dev-minor-and-patch:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
+  - package-ecosystem: "npm"
+    directory: "/web"
+    target-branch: "dev"
+    schedule:
+      interval: "daily"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "nodejs"
+      - "web"
+    assignees:
+      - "prjkhkted"
+    commit-message:
+      prefix: "[dev] web-deps"
+      include: "scope"
+    groups:
+      dev-minor-and-patch:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
+  - package-ecosystem: "npm"
+    directory: "/web"
+    target-branch: "wg-dev"
+    schedule:
+      interval: "daily"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "nodejs"
+      - "web"
+    assignees:
+      - "prjkhkted"
+    commit-message:
+      prefix: "[wg-dev] web-deps"
+      include: "scope"
+    groups:
+      wg-dev-minor-and-patch:
         patterns:
           - "*"
         update-types:
