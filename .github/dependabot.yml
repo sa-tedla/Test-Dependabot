@@ -11,8 +11,6 @@ updates:
       - "dependencies"
       - "python"
       - "api"
-    assignees:
-      - "prjkhkted"
     commit-message:
       prefix: "[qa] api-deps"
       include: "scope"
@@ -31,8 +29,6 @@ updates:
       - "dependencies"
       - "python"
       - "api"
-    assignees:
-      - "prjkhkted"
     commit-message:
       prefix: "[wg-develop] api-deps"
       include: "scope"
@@ -51,8 +47,6 @@ updates:
       - "dependencies"
       - "nodejs"
       - "web"
-    assignees:
-      - "prjkhkted"
     commit-message:
       prefix: "[qa] web-deps"
       include: "scope"
@@ -71,8 +65,6 @@ updates:
       - "dependencies"
       - "nodejs"
       - "web"
-    assignees:
-      - "prjkhkted"
     commit-message:
       prefix: "[wg-develop] web-deps"
       include: "scope"
