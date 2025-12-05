@@ -22,7 +22,7 @@ openpyxl = "^3.1.2"
 azure-ai-textanalytics = "^5.3.0"
 sentry-sdk = {extras = ["fastapi"], version = "^1.29.2"}
 stringcase = "^1.2.0"
-boxsdk = "^3.8.1"
+boxsdk = "^10.1.0"
 prisma = "^0.13.1"
 pycryptodome = "^3.18.0"
 pykakasi = "^2.2.1"
